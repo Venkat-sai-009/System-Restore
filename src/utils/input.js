@@ -10,6 +10,9 @@ const pressedSet = new Set();
 const gestureHandlers = [];
 const pointer = { x: -1, y: -1, down: false, clicked: false, moved: false };
 let anyPressed = false;
+let flipX = false; // corrupted rule: left and right are swapped
+
+const swap = (name) => (flipX ? (name === 'left' ? 'right' : name === 'right' ? 'left' : name) : name);
 
 function press(name) {
   if (!held.has(name)) pressedSet.add(name);
@@ -50,9 +53,10 @@ function buildTouchControls() {
 
 export const input = {
   pointer,
-  down: (name) => held.has(name),
-  pressed: (name) => pressedSet.has(name),
-  axisX: () => (held.has('right') ? 1 : 0) - (held.has('left') ? 1 : 0),
+  down: (name) => held.has(swap(name)),
+  pressed: (name) => pressedSet.has(swap(name)),
+  axisX: () => (held.has(swap('right')) ? 1 : 0) - (held.has(swap('left')) ? 1 : 0),
+  setFlip: (value) => { flipX = value; },
   axisY: () => (held.has('down') ? 1 : 0) - (held.has('up') ? 1 : 0),
   anyPressed: () => anyPressed,
   // Called synchronously inside real user events (needed to unlock audio).

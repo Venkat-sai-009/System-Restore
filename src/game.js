@@ -4,6 +4,7 @@ import { AREA, COLORS, FLOW, VIEW, WINDOW, KO, DIFFICULTY, COMEBACK, INTEGRITY_H
 import { state, resetRun, nextChapter, addFail, markDone, recordRun, setDifficulty, cycleDifficulty, addBounce } from './state.js';
 import { input } from './utils/input.js';
 import { createParticles } from './utils/particles.js';
+import { createGlitchRules } from './glitch.js';
 import { text, hintRow } from './utils/draw.js';
 import { approach } from './utils/math.js';
 import { createBoot } from './ui/boot.js';
@@ -58,6 +59,8 @@ export function createGame(renderer) {
     lives: (base) => base + ctx.diff.hearts + ctx.bonus.hp,
   };
 
+  const rules = createGlitchRules({ input, fx, sfx });
+
   const updateLayers = () => setLayers(1 + state.ids.filter((id) => state.done[id]).length);
 
   function confetti(x, y, count) {
@@ -95,6 +98,14 @@ export function createGame(renderer) {
     ctx.diff = DIFFICULTY[state.difficulty];
     sector.init(ctx);
     attemptTime = 0;
+    rules.start({
+      allowed: sector.glitches,
+      integrity: state.integrity,
+      diff: ctx.diff,
+      comeback: ctx.bonus === COMEBACK,
+      boss: sectorId.startsWith('boss'),
+      gentle: state.chapter === 1 && Object.keys(state.done).length === 0,
+    });
   }
 
   function openSector(id) {
@@ -109,6 +120,7 @@ export function createGame(renderer) {
   }
 
   function closeSector() {
+    rules.stop();
     if (sector) sector.dispose();
     sector = null;
     particles.clear();
@@ -127,6 +139,7 @@ export function createGame(renderer) {
   }
 
   function onWin() {
+    rules.stop();
     sfx.repair();
     fx.shake(4);
     fx.glitch(1);
@@ -138,6 +151,7 @@ export function createGame(renderer) {
   }
 
   function onLose() {
+    rules.stop();
     sfx.error();
     sfx.glitch();
     fx.shake(5);
@@ -187,7 +201,8 @@ export function createGame(renderer) {
       closeSector();
       return;
     }
-    const result = sector.update(dt);
+    const gs = rules.update(dt);
+    const result = sector.update(dt * gs.timeScale);
     if (result === 'win') onWin();
     else if (result === 'lose') onLose();
   }
@@ -276,9 +291,20 @@ export function createGame(renderer) {
     desktop.draw(g, state, time);
     drawWindow(g, sector.title, 1);
     beginContent(g);
+    g.save();
+    if (rules.state.mirror) {
+      g.translate(AREA.w, 0);
+      g.scale(-1, 1);
+    }
+    if (rules.state.upside) {
+      g.translate(0, AREA.h);
+      g.scale(1, -1);
+    }
     sector.render();
-    drawOverlay();
     particles.draw(g);
+    g.restore();
+    drawOverlay();
+    rules.draw(g, AREA.w, AREA.h, time);
     endContent(g);
   }
 

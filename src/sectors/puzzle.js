@@ -168,6 +168,7 @@ export default {
   title: 'photos.sys',
   intro: 'TURN TILES TO FIX THE PHOTO',
   duration: P.timeLimit,
+  glitches: ['flip', 'rush'],
   hints: ['left', 'right', 'up', 'down', 'space'],
   hintAt: { x: 259, y: 118 },
   init(c) {

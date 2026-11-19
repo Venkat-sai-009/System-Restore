@@ -109,3 +109,9 @@ export const PACMAN = {
 
 // Comeback bonus handed out after every K.O. retry: the theme made into a mechanic.
 export const COMEBACK = { hp: 1, shield: 2, time: 5 };
+
+// Corrupted rules: warning time, effect length and spacing, in seconds.
+export const GLITCH = {
+  warn: 1.2, duration: 3.5, rushDuration: 4, rushScale: 1.35,
+  firstMin: 3.5, firstMax: 6, gapMin: 3, gapMax: 5, maxEvents: 3, gentleEvents: 1, gentleDelay: 2,
+};

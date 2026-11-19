@@ -170,6 +170,7 @@ export default {
   title: 'databus.sys',
   intro: 'RACE THE DATA BUS!',
   duration: P.timeLimit,
+  glitches: ['flip', 'mirror', 'rush'],
   hints: ['left', 'right'],
   hintAt: { x: 152, y: 24 },
   init(c) {

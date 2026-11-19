@@ -232,6 +232,7 @@ export default {
   title: 'memory.sys',
   intro: 'RUN THROUGH MEMORY!',
   duration: 30,
+  glitches: ['flip', 'mirror', 'upside', 'rush'],
   hints: ['left', 'right', 'up'],
   hintAt: { x: 152, y: 34 },
   init(c) {

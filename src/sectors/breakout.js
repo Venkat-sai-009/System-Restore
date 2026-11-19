@@ -122,6 +122,7 @@ export default {
   title: 'cache.sys',
   intro: 'BOUNCE THE BALL, CLEAR THE CACHE!',
   duration: 40,
+  glitches: ['flip', 'mirror', 'rush'],
   hints: ['left', 'right', 'space'],
   hintAt: { x: 152, y: 100 },
   init(c) {

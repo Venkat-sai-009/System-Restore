@@ -318,6 +318,7 @@ function makePac(variant) {
     title: variant.title,
     intro: variant.intro,
     duration: 40,
+    glitches: ['flip', 'mirror', 'upside', 'rush'],
     hints: ['left', 'right', 'up', 'down'],
     hintAt: { x: 152, y: 3 },
     init(c) {

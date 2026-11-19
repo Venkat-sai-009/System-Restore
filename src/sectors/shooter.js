@@ -221,6 +221,7 @@ export default {
   title: 'firewall.sys',
   intro: 'DEFEND THE FIREWALL!',
   duration: P.duration,
+  glitches: ['flip', 'mirror', 'upside', 'rush'],
   hints: ['left', 'right', 'up', 'down', 'space'],
   hintAt: { x: 152, y: 60 },
   init(c) {

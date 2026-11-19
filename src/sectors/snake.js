@@ -159,6 +159,7 @@ export default {
   title: 'network.sys',
   intro: 'COLLECT PACKETS. BOUNCE OFF VIRUSES!',
   duration: 40,
+  glitches: ['flip', 'mirror', 'upside', 'rush'],
   hints: ['left', 'right', 'up', 'down'],
   hintAt: { x: 152, y: 70 },
   init(c) {

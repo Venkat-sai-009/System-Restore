@@ -97,6 +97,7 @@ export default {
   title: 'wifi.sys',
   intro: 'FLY THROUGH THE GAPS!',
   duration: 30,
+  glitches: ['mirror', 'upside', 'rush'],
   hints: ['up', 'space'],
   hintAt: { x: 152, y: 124 },
   init(c) {

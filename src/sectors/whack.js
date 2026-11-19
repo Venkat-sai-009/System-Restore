@@ -150,6 +150,7 @@ export default {
   title: 'bugfix.sys',
   intro: 'ORANGE BUGS BOUNCE BACK. HIT TWICE!',
   duration: P.timeLimit,
+  glitches: ['flip', 'rush'],
   hints: ['left', 'right', 'up', 'down', 'space'],
   hintAt: { x: 152, y: 124 },
   init(c) {
