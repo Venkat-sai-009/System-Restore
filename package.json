@@ -1,0 +1,19 @@
+{
+  "name": "system-restore",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Harvest game jam entry: you are the recovery process inside a crashed computer.",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "three": "^0.187.0"
+  },
+  "devDependencies": {
+    "vite": "^8.3.8"
+  }
+}
