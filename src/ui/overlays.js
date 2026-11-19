@@ -46,8 +46,9 @@ export function drawRepair(g, isBoss) {
 }
 
 export function drawBounce(g, timeLeft) {
-  bevel(g, AREA.w / 2 - 52, 18, 104, 14, COLORS.night, true);
+  bevel(g, AREA.w / 2 - 66, 18, 132, 25, COLORS.night, true);
   text(g, 'BOUNCE BACK!', AREA.w / 2, 21, Math.floor(timeLeft * 10) % 2 ? COLORS.yellow : COLORS.teal, 'center');
+  text(g, 'COMEBACK BONUS!', AREA.w / 2, 32, COLORS.lime, 'center');
 }
 
 export function drawIntro(g, line) {
@@ -69,6 +70,7 @@ export function drawEnding(g, state, time) {
     const b = state.best.run;
     text(g, 'BEST ' + Math.floor(b / 60) + ':' + String(b % 60).padStart(2, '0'), 160, 102, COLORS.grey, 'center');
   }
-  text(g, DIFFICULTY[state.difficulty].label, 160, 114, DIFF_COLORS[state.difficulty], 'center');
-  if (Math.floor(time * 2.5) % 2 === 0) hintRow(g, 160, 126, ['enter']);
+  text(g, 'BOUNCE-BACKS ' + state.bounces, 160, 114, COLORS.lime, 'center');
+  text(g, DIFFICULTY[state.difficulty].label, 160, 125, DIFF_COLORS[state.difficulty], 'center');
+  if (Math.floor(time * 2.5) % 2 === 0) hintRow(g, 160, 134, ['enter']);
 }

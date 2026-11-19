@@ -238,7 +238,7 @@ export default {
     ctx = c;
     const lv = buildLevel(c.twist);
     s = { lv, x: 24, y: G * T - P.playerH, vx: 0, vy: 0, onGround: true, coyote: 0, buffer: 0,
-      cam: 0, squash: 0, facing: 1, anim: 0, hp: P.hp + c.diff.hearts, invuln: 0, safeX: 24 };
+      cam: 0, squash: 0, facing: 1, anim: 0, hp: c.lives(P.hp), invuln: c.bonus.shield, safeX: 24 };
   },
   update(dt) {
     s.invuln = Math.max(0, s.invuln - dt);
@@ -285,7 +285,7 @@ export default {
     drawPlayer(g, cam);
     rect(g, ctx.W / 2 - 60, 4, 120, 4, COLORS.night);
     rect(g, ctx.W / 2 - 60 + Math.round((s.x / (s.lv.flagCol * T)) * 116), 3, 4, 6, COLORS.yellow);
-    hearts(g, 4, 3, s.hp, P.hp + ctx.diff.hearts);
+    hearts(g, 4, 3, s.hp, ctx.lives(P.hp));
   },
   dispose() {
     s = null;

@@ -28,6 +28,7 @@ export const state = {
   done: {},          // sector or boss id -> true once repaired
   twist: {},         // sector id -> number of failed attempts (drives the retry twist)
   playTime: 0,       // seconds spent inside sectors this run
+  bounces: 0,        // how many times the player bounced back after a K.O. this run
   shownIntegrity: 0, // smoothed value fed to the shader so healing animates
   best: readStore(STORE_KEY, {}),
   get ids() { return CHAPTERS[this.chapter - 1].ids; },
@@ -41,6 +42,11 @@ export function resetRun() {
   state.done = {};
   state.twist = {};
   state.playTime = 0;
+  state.bounces = 0;
+}
+
+export function addBounce() {
+  state.bounces += 1;
 }
 
 export function nextChapter() {

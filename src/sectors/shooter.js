@@ -226,7 +226,7 @@ export default {
   init(c) {
     ctx = c;
     s = {
-      x: c.W / 2, y: c.H - 22, hp: P.hp + c.diff.hearts, invuln: 0, time: 0, fireTimer: 0, spawnTimer: 0.6,
+      x: c.W / 2, y: c.H - 22, hp: c.lives(P.hp), invuln: c.bonus.shield, time: 0, fireTimer: 0, spawnTimer: 0.6,
       fireSide: 1, level: 1, flash: 0, speedMul: c.diff.speed * (1 + 0.12 * c.twist),
       bullets: makePool(MAX_BULLETS, () => ({ alive: false, x: 0, y: 0, vx: 0, vy: 0, bounces: 0, life: 0 })),
       enemyBullets: makePool(MAX_ENEMY_BULLETS, () => ({ alive: false, x: 0, y: 0, vx: 0, vy: 0 })),
@@ -279,7 +279,7 @@ export default {
       rect(g, b.x - 1, b.y - 1, 2, 2, COLORS.white);
     }
     drawShip(g);
-    hearts(g, 6, 4, s.hp, P.hp + ctx.diff.hearts);
+    hearts(g, 6, 4, s.hp, ctx.lives(P.hp));
     for (let i = 0; i < P.maxLevel; i++) rect(g, 6 + i * 10, 15, 8, 4, i < s.level ? COLORS.yellow : COLORS.slate);
     if (s.flash > 0 && Math.floor(s.flash * 10) % 2 === 0) {
       rect(g, ctx.W / 2 - 44, 34, 88, 12, COLORS.night);

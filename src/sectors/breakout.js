@@ -130,7 +130,7 @@ export default {
     const widen = c.diff.hearts > 0 ? 1.3 : c.diff.hearts < 0 ? 0.8 : 1;
     s = {
       rows, bricks: new Array(rows * P.cols).fill(true), left: rows * P.cols, pw: P.paddleW * widen,
-      px: c.W / 2, hp: P.hp + c.diff.hearts, wait: 0, t: 0,
+      px: c.W / 2, hp: c.lives(P.hp), wait: 0, t: 0,
       speed: P.ballSpeed * c.diff.speed * (1 + 0.05 * c.twist),
       ball: { x: c.W / 2, y: 0, vx: 0, vy: 0, stuck: true },
     };
@@ -178,7 +178,7 @@ export default {
     rect(g, s.px + s.pw / 2, py + 1, 2, 3, COLORS.blue);
     rect(g, s.ball.x - 2, s.ball.y - 2, 4, 4, COLORS.yellow);
     rect(g, s.ball.x - 1, s.ball.y - 1, 2, 2, COLORS.white);
-    hearts(g, 4, 3, s.hp, P.hp + ctx.diff.hearts);
+    hearts(g, 4, 3, s.hp, ctx.lives(P.hp));
     bar(g, ctx.W - 84, 4, 78, 6, 1 - s.left / total, COLORS.lime, COLORS.ink);
   },
   dispose() {

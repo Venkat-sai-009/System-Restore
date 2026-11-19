@@ -5,6 +5,9 @@ import { clamp, approach, rand } from '../utils/math.js';
 
 const LANES = [-0.6, 0, 0.6];
 const CAR_Z = 3.2;      // distance ahead of the camera where the car sits on screen
+const HOP_TIME = 0.5;     // how long the car stays airborne after a crash
+const RECOIL = 5;         // metres the car is knocked backwards
+const SIDE_BOUNCE = 0.3;  // sideways shove away from the cone
 const MAX_OFFSET = 1.6; // how far from the road centre the car may drift
 const rowX = new Float32Array(256);
 const rowHalf = new Float32Array(256);
@@ -34,7 +37,10 @@ function crash(o) {
   o.hit = true;
   o.fly = 0.8;
   s.speed *= P.hitSlow;
-  s.hop = 0.35;
+  s.hop = HOP_TIME;
+  s.dist = Math.max(0, s.dist - RECOIL);
+  s.x += (s.x >= o.x ? 1 : -1) * SIDE_BOUNCE;
+  ctx.sfx.bounce();
   ctx.sfx.hit();
   ctx.fx.shake(3);
   ctx.fx.glitch(0.3);
@@ -145,7 +151,7 @@ function drawObstacles(g) {
 
 function drawCar(g) {
   const cx = Math.round(ctx.W / 2);
-  const y = ctx.H - 6 - Math.round(Math.abs(Math.sin(s.hop * 9)) * 8 * (s.hop > 0 ? 1 : 0));
+  const y = ctx.H - 6 - (s.hop > 0 ? Math.round(Math.sin((s.hop / HOP_TIME) * Math.PI) * 16) : 0);
   const lean = Math.round(s.steer * 2);
   rect(g, cx - 14, y - 7, 6, 7, COLORS.ink);
   rect(g, cx + 8, y - 7, 6, 7, COLORS.ink);
@@ -168,7 +174,7 @@ export default {
   hintAt: { x: 152, y: 24 },
   init(c) {
     ctx = c;
-    s = { dist: 0, x: 0, speed: 0, steer: 0, t: 0, hop: 0, bg: 0, obstacles: buildObstacles(c.twist, c.diff.extra), limit: P.timeLimit * c.diff.time };
+    s = { dist: 0, x: 0, speed: 0, steer: 0, t: 0, hop: 0, bg: 0, obstacles: buildObstacles(c.twist, c.diff.extra), limit: P.timeLimit * c.diff.time + c.bonus.time };
   },
   update(dt) {
     s.t += dt;

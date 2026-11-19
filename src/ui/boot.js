@@ -35,13 +35,18 @@ export function createBoot() {
       text(g, 'SYSTEM', VIEW.width / 2 + jitter, 8, COLORS.white, 'center', 16);
       text(g, 'RESTORE', VIEW.width / 2 - jitter, 28, COLORS.teal, 'center', 16);
 
+      const tagline = 'BOUNCE BACK!';
+      for (let i = 0; i < tagline.length; i++) {
+        const hop = Math.round(Math.abs(Math.sin(t * 4 + i * 0.5)) * 5);
+        text(g, tagline[i], VIEW.width / 2 - tagline.length * 4 + i * 8, 48 - hop, COLORS.yellow);
+      }
       const alive = Math.min(1, t / LOAD_TIME);
       let prev = 0;
       for (let x = 24; x < 296; x++) {
         const u = (x - t * 70 + 2000) % PULSE_PERIOD;
         const y = Math.round(wave(u) * alive);
         const top = Math.min(prev, y);
-        rect(g, x, 62 + top, 1, Math.abs(y - prev) + 1, COLORS.teal);
+        rect(g, x, 68 + top, 1, Math.abs(y - prev) + 1, COLORS.teal);
         prev = y;
       }
 

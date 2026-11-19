@@ -12,6 +12,9 @@ const HIT_W = 36;
 const HIT_H = 34;
 const BUG = 1;
 const FILE = 2;
+const BOUNCER = 3;
+const BOUNCER_CHANCE = 0.25;
+const KNOCK_DOWN = 0.4;
 const SWING_TIME = 0.14;
 
 let s = null;
@@ -25,8 +28,11 @@ function spawn() {
   for (let i = 0; i < HOLES; i++) if (!s.holes[i].kind) free.push(i);
   if (!free.length) return;
   const h = s.holes[free[Math.floor(Math.random() * free.length)]];
-  h.kind = Math.random() < P.fileChance ? FILE : BUG;
+  const roll = Math.random();
+  h.kind = roll < P.fileChance ? FILE : roll < P.fileChance + BOUNCER_CHANCE ? BOUNCER : BUG;
   h.t = 0;
+  h.down = 0;
+  h.struck = false;
   h.life = (P.upTime / s.speed) * rand(0.85, 1.15);
 }
 
@@ -36,7 +42,18 @@ function whackAt(i) {
   const h = s.holes[i];
   const x = holeX(i);
   const y = holeY(i);
-  if (h.kind === BUG) {
+  if (h.down > 0) {
+    ctx.sfx.land();
+    return;
+  }
+  if (h.kind === BOUNCER && !h.struck) {
+    h.struck = true;
+    h.down = KNOCK_DOWN;
+    ctx.sfx.bounce();
+    ctx.particles.burst(x, y - 8, COLORS.orange, 6, 50, 0.3, 80, 2);
+    return;
+  }
+  if (h.kind === BUG || h.kind === BOUNCER) {
     h.kind = 0;
     s.hits += 1;
     ctx.sfx.explode();
@@ -76,18 +93,18 @@ function handleInput() {
   }
 }
 
-function drawBug(g, x, y, up) {
+function drawBug(g, x, y, up, body = COLORS.lime, dark = COLORS.green) {
   const h = Math.round(18 * up);
   const top = y - h;
-  rect(g, x - 9, top + 4, 18, h, COLORS.lime);
-  rect(g, x - 7, top, 14, 5, COLORS.lime);
+  rect(g, x - 9, top + 4, 18, h, body);
+  rect(g, x - 7, top, 14, 5, body);
   rect(g, x - 5, top + 4, 4, 4, COLORS.white);
   rect(g, x + 2, top + 4, 4, 4, COLORS.white);
   rect(g, x - 4, top + 5, 2, 3, COLORS.red);
   rect(g, x + 3, top + 5, 2, 3, COLORS.red);
   rect(g, x - 9, top - 3, 2, 4, COLORS.ink);
   rect(g, x + 7, top - 3, 2, 4, COLORS.ink);
-  rect(g, x - 9, top + 4 + h - 4, 18, 2, COLORS.green);
+  rect(g, x - 9, top + 4 + h - 4, 18, 2, dark);
 }
 
 function drawFile(g, x, y, up) {
@@ -109,7 +126,10 @@ function drawHole(g, i) {
   rect(g, x - 20, y - 2, 40, 8, COLORS.ink);
   if (h.kind) {
     const up = clamp(h.t / 0.12, 0, 1) * (h.life - h.t < 0.12 ? clamp((h.life - h.t) / 0.12, 0, 1) : 1);
-    (h.kind === BUG ? drawBug : drawFile)(g, x, y + 2, easeOutBack(up) > 1 ? 1 : Math.max(0, easeOutBack(up)));
+    const rise = h.down > 0 ? 0 : easeOutBack(up) > 1 ? 1 : Math.max(0, easeOutBack(up));
+    if (h.kind === FILE) drawFile(g, x, y + 2, rise);
+    else if (h.kind === BOUNCER) drawBug(g, x, y + 2, rise, COLORS.orange, COLORS.brick);
+    else drawBug(g, x, y + 2, rise);
   }
   rect(g, x - 24, y + 2, 48, 8, COLORS.dirt);
   rect(g, x - 24, y + 2, 48, 2, COLORS.gold);
@@ -128,16 +148,16 @@ function drawMallet(g) {
 export default {
   id: 'whack',
   title: 'bugfix.sys',
-  intro: 'WHACK THE BUGS, SPARE THE FILES!',
+  intro: 'ORANGE BUGS BOUNCE BACK. HIT TWICE!',
   duration: P.timeLimit,
   hints: ['left', 'right', 'up', 'down', 'space'],
   hintAt: { x: 152, y: 124 },
   init(c) {
     ctx = c;
     s = {
-      holes: Array.from({ length: HOLES }, () => ({ kind: 0, t: 0, life: 1 })),
-      cursor: 4, hits: 0, hp: P.hp + c.diff.hearts, t: 0, swing: 0, spawnTimer: 0.5,
-      goal: P.goal + c.diff.extra * 2, limit: P.timeLimit * c.diff.time,
+      holes: Array.from({ length: HOLES }, () => ({ kind: 0, t: 0, life: 1, down: 0, struck: false })),
+      cursor: 4, hits: 0, hp: c.lives(P.hp), t: 0, swing: 0, spawnTimer: 0.5,
+      goal: P.goal + c.diff.extra * 2, limit: P.timeLimit * c.diff.time + c.bonus.time,
       speed: c.diff.speed * (1 + 0.06 * c.twist),
     };
   },
@@ -152,6 +172,11 @@ export default {
     }
     for (const h of s.holes) {
       if (!h.kind) continue;
+      if (h.down > 0) {
+        h.down -= dt;
+        if (h.down <= 0) h.t = 0;
+        continue;
+      }
       h.t += dt;
       if (h.t >= h.life) h.kind = 0;
     }
@@ -166,7 +191,7 @@ export default {
     rect(g, 0, 0, ctx.W, 16, COLORS.night);
     for (let i = 0; i < HOLES; i++) drawHole(g, i);
     drawMallet(g);
-    hearts(g, 4, 3, s.hp, P.hp + ctx.diff.hearts);
+    hearts(g, 4, 3, s.hp, ctx.lives(P.hp));
     const left = 1 - s.t / s.limit;
     bar(g, ctx.W / 2 - 40, 4, 80, 6, left, left < 0.25 ? COLORS.red : COLORS.teal, COLORS.ink);
     bar(g, ctx.W - 64, 4, 58, 6, s.hits / s.goal, COLORS.lime, COLORS.ink);

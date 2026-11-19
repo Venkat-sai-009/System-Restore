@@ -19,7 +19,7 @@ The theme is literal twice: computers bounce back by rebooting, and so do you.
 - **Levels for every age group.** Pick EASY (kids and new players, extra hearts, slower, more time),
   NORMAL or HARD (fewer hearts, faster, more to do) after the intro. Press Tab in the hub or on the
   K.O. screen to change it any time.
-- **K.O. screen.** When your hearts run out you see a big K.O. Press Enter to retry with a small
+- **Bounce back.** When your hearts run out you see a big K.O. Every retry gives a comeback bonus (an extra heart, a short shield or extra time), and the hub counts your bounce-backs. Press Enter to retry with a small
   twist, or Esc to go back to the desktop.
 
 ## Controls

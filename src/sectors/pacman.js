@@ -327,7 +327,7 @@ function makePac(variant) {
       s = {
         maze: generateMaze(), dots: new Uint8Array(W * H), left: 0, total: 0, t: 0, delay: P.startDelay,
         player: makeEntity(START[0], START[1]), want: null, wantTimer: 0, face: [1, 0], moving: false,
-        hp: P.hp + c.diff.hearts, invuln: 0, fright: 0, frightTime: P.frightTime * factor, chew: false,
+        hp: c.lives(P.hp), invuln: c.bonus.shield, fright: 0, frightTime: P.frightTime * factor, chew: false,
         ghostMul: c.diff.speed * (1 + 0.05 * c.twist),
         ghosts: [],
       };
@@ -367,7 +367,7 @@ function makePac(variant) {
       drawMaze(g);
       for (const gh of s.ghosts) drawGhost(g, gh);
       drawChomper(g);
-      hearts(g, 4, 3, s.hp, P.hp + ctx.diff.hearts);
+      hearts(g, 4, 3, s.hp, ctx.lives(P.hp));
       bar(g, ctx.W - 84, 4, 78, 6, 1 - s.left / s.total, COLORS.yellow, COLORS.ink);
       if (s.fright > 0) bar(g, ctx.W - 84, 12, 78, 4, s.fright / s.frightTime, COLORS.blue, COLORS.ink);
     },
@@ -380,7 +380,7 @@ function makePac(variant) {
 }
 
 export default makePac({
-  id: 'boss', title: 'kernel.exe', intro: 'EAT THE DATA, DODGE THE VIRUSES!', ghosts: 3, aggression: 1,
+  id: 'boss', title: 'kernel.exe', intro: 'POWER CORES LET YOU BOUNCE BACK!', ghosts: 3, aggression: 1,
   loops: 0.35, fixDeadEnds: 0.7, fill: COLORS.night, edge: COLORS.blue,
 });
 

@@ -2,12 +2,12 @@
 import { COLORS, PUZZLE as P, AREA } from '../config.js';
 import { rect, bar, outline, bevel, arrowShape } from '../utils/draw.js';
 import { check } from '../ui/icons.js';
-import { approach, randInt } from '../utils/math.js';
+import { approach, randInt, easeOutBack } from '../utils/math.js';
 
 const N = 3;
 const BOARD = P.cell * N;
 const PREVIEW_CELL = 16;
-const SPIN_TIME = 0.12;
+const SPIN_TIME = 0.22;
 
 let s = null;
 let ctx = null;
@@ -129,7 +129,8 @@ function drawTiles(g) {
     const y = s.oy + Math.floor(i / N) * P.cell;
     const col = i % N;
     const row = Math.floor(i / N);
-    const angle = ((s.rot[i] - s.spin[i]) * Math.PI) / 2;
+    // Tiles overshoot and bounce back into place.
+    const angle = ((s.rot[i] - 1 + easeOutBack(1 - s.spin[i])) * Math.PI) / 2;
     g.save();
     g.beginPath();
     g.rect(x, y, P.cell, P.cell);
@@ -173,7 +174,7 @@ export default {
     ctx = c;
     const rot = scramble();
     s = {
-      rot, spin: new Array(N * N).fill(0), art: paintPicture(), t: 0, solvedHold: 0, limit: P.timeLimit * ctx.diff.time,
+      rot, spin: new Array(N * N).fill(0), art: paintPicture(), t: 0, solvedHold: 0, limit: P.timeLimit * ctx.diff.time + ctx.bonus.time * 2,
       cursor: rot.findIndex((r) => r !== 0),
       ox: Math.round(ctx.W * 0.3 - BOARD / 2), oy: 30,
     };

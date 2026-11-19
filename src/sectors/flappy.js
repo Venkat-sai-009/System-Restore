@@ -102,7 +102,7 @@ export default {
   init(c) {
     ctx = c;
     s = {
-      y: c.H / 2, vy: 0, t: 0, scroll: 0, passed: 0, hp: P.hp + c.diff.hearts, invuln: 0,
+      y: c.H / 2, vy: 0, t: 0, scroll: 0, passed: 0, hp: c.lives(P.hp), invuln: c.bonus.shield,
       gap: P.gap - c.diff.hearts * 6, goal: P.goal + c.diff.extra, lastGap: c.H / 2,
       speed: P.scroll * c.diff.speed * (1 + 0.04 * c.twist),
       pipes: Array.from({ length: MAX_PIPES }, () => ({ alive: false, x: 0, gapY: 0, passed: false })),
@@ -147,7 +147,7 @@ export default {
     drawBackdrop(g);
     for (const p of s.pipes) if (p.alive) drawPipe(g, p);
     drawPlayer(g);
-    hearts(g, 4, 3, s.hp, P.hp + ctx.diff.hearts);
+    hearts(g, 4, 3, s.hp, ctx.lives(P.hp));
     bar(g, ctx.W - 84, 4, 78, 6, s.passed / s.goal, COLORS.teal, COLORS.ink);
   },
   dispose() {

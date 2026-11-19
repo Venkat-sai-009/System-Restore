@@ -7,6 +7,7 @@ const OFFSET_X = 8;
 const OFFSET_Y = 18;
 const DIRS = { left: [-1, 0], right: [1, 0], up: [0, -1], down: [0, 1] };
 const KEYS = ['left', 'right', 'up', 'down'];
+const DIRS_LIST = Object.values(DIRS);
 const MAX_QUEUE = 2;
 const MIN_VIRUS_DISTANCE = 6;
 
@@ -60,6 +61,26 @@ function hurt() {
   return s.hp <= 0;
 }
 
+// Wrap-aware difference of two grid coordinates, always -1, 0 or 1 for neighbours.
+const wrapStep = (d, n) => (d > 1 ? d - n : d < -1 ? d + n : d);
+
+// Turn the whole snake around so the tail becomes the head: it bounces back.
+function bounceBack() {
+  for (let i = 0, j = s.len - 1; i < j; i++, j--) {
+    const x = s.bx[i];
+    const y = s.by[i];
+    s.bx[i] = s.bx[j];
+    s.by[i] = s.by[j];
+    s.bx[j] = x;
+    s.by[j] = y;
+  }
+  const dx = wrapStep(s.bx[0] - s.bx[1], P.cols);
+  const dy = wrapStep(s.by[0] - s.by[1], P.rows);
+  s.dir = DIRS_LIST.find((d) => d[0] === dx && d[1] === dy) || s.dir;
+  s.queue.length = 0;
+  ctx.sfx.bounce();
+}
+
 // Advance one grid step. Returns 'lose' when out of hearts.
 function step() {
   if (s.queue.length) {
@@ -71,7 +92,11 @@ function step() {
   if (s.invuln <= 0) {
     let crash = s.viruses.some((v) => v.x === nx && v.y === ny);
     for (let i = 0; i < s.len - 1 && !crash; i++) crash = s.bx[i] === nx && s.by[i] === ny;
-    if (crash && hurt()) return 'lose';
+    if (crash) {
+      if (hurt()) return 'lose';
+      bounceBack();
+      return 'playing';
+    }
   }
   const tailX = s.bx[s.len - 1];
   const tailY = s.by[s.len - 1];
@@ -132,7 +157,7 @@ function drawField(g) {
 export default {
   id: 'snake',
   title: 'network.sys',
-  intro: 'COLLECT THE DATA PACKETS!',
+  intro: 'COLLECT PACKETS. BOUNCE OFF VIRUSES!',
   duration: 40,
   hints: ['left', 'right', 'up', 'down'],
   hintAt: { x: 152, y: 70 },
@@ -140,7 +165,7 @@ export default {
     ctx = c;
     s = {
       len: P.startLen, bx: new Int16Array(P.maxLen + 1), by: new Int16Array(P.maxLen + 1), dir: DIRS.right,
-      queue: [], timer: 0, eaten: 0, t: 0, invuln: 0, hp: P.hp + c.diff.hearts, packet: { x: 0, y: 0 },
+      queue: [], timer: 0, eaten: 0, t: 0, invuln: c.bonus.shield, hp: c.lives(P.hp), packet: { x: 0, y: 0 },
       viruses: [], goal: P.goal + c.diff.extra, interval: P.step / (c.diff.speed * (1 + 0.04 * c.twist)),
     };
     for (let i = 0; i < s.len; i++) {
@@ -165,7 +190,7 @@ export default {
     const g = ctx.g;
     drawField(g);
     drawSnake(g);
-    hearts(g, 4, 3, s.hp, P.hp + ctx.diff.hearts);
+    hearts(g, 4, 3, s.hp, ctx.lives(P.hp));
     bar(g, ctx.W - 84, 4, 78, 6, s.eaten / s.goal, COLORS.yellow, COLORS.ink);
   },
   dispose() {

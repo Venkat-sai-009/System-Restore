@@ -1,7 +1,7 @@
 // Global state machine:
 // boot -> story -> level select -> hub -> sector -> win | K.O. -> ... -> collapse -> boss -> story -> chapter 2 -> ending.
-import { AREA, COLORS, FLOW, VIEW, WINDOW, KO, DIFFICULTY, INTEGRITY_HEAL_RATE } from './config.js';
-import { state, resetRun, nextChapter, addFail, markDone, recordRun, setDifficulty, cycleDifficulty } from './state.js';
+import { AREA, COLORS, FLOW, VIEW, WINDOW, KO, DIFFICULTY, COMEBACK, INTEGRITY_HEAL_RATE } from './config.js';
+import { state, resetRun, nextChapter, addFail, markDone, recordRun, setDifficulty, cycleDifficulty, addBounce } from './state.js';
 import { input } from './utils/input.js';
 import { createParticles } from './utils/particles.js';
 import { text, hintRow } from './utils/draw.js';
@@ -52,7 +52,11 @@ export function createGame(renderer) {
     shake(amount) { shake = Math.max(shake, amount); },
     glitch(amount) { postfx.pulse(amount); },
   };
-  const ctx = { g, W: AREA.w, H: AREA.h, input, sfx, fx, particles, twist: 0, diff: DIFFICULTY.normal };
+  const NO_BONUS = { hp: 0, shield: 0, time: 0 };
+  const ctx = {
+    g, W: AREA.w, H: AREA.h, input, sfx, fx, particles, twist: 0, diff: DIFFICULTY.normal, bonus: NO_BONUS,
+    lives: (base) => base + ctx.diff.hearts + ctx.bonus.hp,
+  };
 
   const updateLayers = () => setLayers(1 + state.ids.filter((id) => state.done[id]).length);
 
@@ -96,6 +100,7 @@ export function createGame(renderer) {
   function openSector(id) {
     sectorId = id;
     sector = SECTORS[id];
+    ctx.bonus = NO_BONUS;
     particles.clear();
     initSector();
     mode = 'opening';
@@ -113,6 +118,8 @@ export function createGame(renderer) {
 
   function retry() {
     sector.dispose();
+    ctx.bonus = COMEBACK;
+    addBounce();
     initSector();
     sfx.reboot();
     bounceBanner = FLOW.bounceBannerTime;

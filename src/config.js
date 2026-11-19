@@ -25,7 +25,7 @@ export const TASKBAR = { y: 164, h: 16 };
 
 export const FLOW = {
   repairTime: 1.6, collapseTime: 2.6, hintTime: 4.5, introTime: 2.6,
-  bounceBannerTime: 1.1, maxTwist: 3, shakeDecay: 24, glitchDecay: 2.2,
+  bounceBannerTime: 1.6, maxTwist: 3, shakeDecay: 24, glitchDecay: 2.2,
 };
 
 export const STORY = { panelTime: 2.6, typeSpeed: 28 };
@@ -106,3 +106,6 @@ export const PACMAN = {
   tile: 12, cols: 23, rows: 9, originX: 14, originY: 28, playerSpeed: 6, ghostSpeed: 4.8, frightSpeed: 3,
   frightTime: 6, hp: 3, invuln: 1.6, startDelay: 1.0, respawnTime: 3, hitRange: 0.7,
 };
+
+// Comeback bonus handed out after every K.O. retry: the theme made into a mechanic.
+export const COMEBACK = { hp: 1, shield: 2, time: 5 };

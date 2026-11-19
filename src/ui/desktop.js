@@ -78,6 +78,11 @@ export function createDesktop() {
       rect(g, 96, 24, 128, 2, clean ? COLORS.teal : COLORS.red);
       text(g, DIFFICULTY[state.difficulty].label, VIEW.width - 4, 4, diffColor(state.difficulty), 'right');
       text(g, 'TAB', VIEW.width - 4, 14, COLORS.skyLight, 'right');
+      if (state.bounces > 0) {
+        rect(g, 6, 11, 10, 3, COLORS.orange);
+        rect(g, 4, 7, 14, 4, COLORS.yellow);
+        text(g, 'x' + state.bounces, 22, 6, COLORS.yellow);
+      }
       const ids = idsOf(state);
       for (let i = 0; i < countOf(state); i++) this.drawCell(g, state, ids[i], i, time, fall);
       this.drawTaskbar(g, state);
