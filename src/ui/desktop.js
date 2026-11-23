@@ -5,6 +5,8 @@ import { genreGlyph, check, warn, power } from './icons.js';
 import { diffColor } from './overlays.js';
 
 const BOSS_INDEX = 4;
+const TRAIL_LENGTH = 8;
+const TRAIL_COLORS = [COLORS.white, COLORS.skyLight, COLORS.teal];
 const BAR = { x: 22, y: TASKBAR.y + 4, w: 154, h: 8 };
 
 const idsOf = (state) => [...state.ids, state.bossId];
@@ -27,6 +29,7 @@ export function cellCenter(id, state) {
 
 export function createDesktop() {
   let sel = 0;
+  const trail = []; // recent pointer positions, newest first
 
   function move(dx, dy, state) {
     const row = sel === BOSS_INDEX ? 2 : Math.floor(sel / 2);
@@ -50,6 +53,10 @@ export function createDesktop() {
       if (input.pressed('up')) move(0, -1, state);
       if (input.pressed('down')) move(0, 1, state);
       const p = input.pointer;
+      if (p.moved && p.x >= 0) {
+        trail.unshift({ x: p.x, y: p.y });
+        if (trail.length > TRAIL_LENGTH) trail.pop();
+      }
       let clicked = -1;
       if (p.moved || p.clicked) {
         for (let i = 0; i < countOf(state); i++) {
@@ -85,7 +92,14 @@ export function createDesktop() {
       }
       const ids = idsOf(state);
       for (let i = 0; i < countOf(state); i++) this.drawCell(g, state, ids[i], i, time, fall);
+      this.drawTrail(g);
       this.drawTaskbar(g, state);
+    },
+    drawTrail(g) {
+      trail.forEach((pt, k) => {
+        const size = Math.max(1, 4 - Math.floor(k / 2));
+        rect(g, Math.round(pt.x) - size / 2, Math.round(pt.y) - size / 2, size, size, TRAIL_COLORS[Math.min(2, Math.floor(k / 3))]);
+      });
     },
     drawCell(g, state, id, i, time, fall) {
       const c = cellRect(i);
@@ -95,7 +109,10 @@ export function createDesktop() {
       let ox = fall > 0 ? Math.round(Math.sin(time * 40 + i) * fall * 3) : 0;
       if (!done && Math.sin(time * 11 + i * 5) > 0.985) ox += Math.sin(time * 97 + i) > 0 ? 2 : -2;
       const x = Math.round(c.x + ox);
-      const y = Math.round(c.y + drop);
+      // Broken folders shiver, repaired ones sit still, the selected one hops.
+      const shiver = done || fall > 0 ? 0 : Math.round(Math.sin(time * 9 + i * 1.7));
+      const hop = i === sel ? -Math.round(Math.abs(Math.sin(time * 7)) * 2) : 0;
+      const y = Math.round(c.y + drop + shiver + hop);
 
       if (i === sel) {
         rect(g, x, y, c.w, c.h, COLORS.night);

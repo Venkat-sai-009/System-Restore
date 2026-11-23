@@ -1,6 +1,6 @@
 // Global state machine:
 // boot -> story -> level select -> hub -> sector -> win | K.O. -> ... -> collapse -> boss -> story -> chapter 2 -> ending.
-import { AREA, COLORS, FLOW, VIEW, WINDOW, KO, DIFFICULTY, COMEBACK, INTEGRITY_HEAL_RATE } from './config.js';
+import { AREA, COLORS, FLOW, VIEW, WINDOW, KO, DIFFICULTY, COMEBACK, INTEGRITY_HEAL_RATE, HOWTO } from './config.js';
 import { state, resetRun, nextChapter, addFail, markDone, recordRun, setDifficulty, cycleDifficulty, addBounce } from './state.js';
 import { input } from './utils/input.js';
 import { createParticles } from './utils/particles.js';
@@ -12,7 +12,7 @@ import { createStory } from './ui/story.js';
 import { createDifficultyScreen } from './ui/difficulty.js';
 import { createDesktop, cellCenter } from './ui/desktop.js';
 import { drawWindow, beginContent, endContent } from './ui/window.js';
-import { drawKo, drawRepair, drawBounce, drawIntro, drawEnding } from './ui/overlays.js';
+import { drawKo, drawRepair, drawBounce, drawIntro, drawHowTo, drawEnding } from './ui/overlays.js';
 import * as sfx from './audio/sfx.js';
 import { isMuted, setMuted, suspend, resume } from './audio/context.js';
 import { startMusic, setLayers } from './audio/music.js';
@@ -24,11 +24,17 @@ import boss, { boss2 } from './sectors/pacman.js';
 import breakout from './sectors/breakout.js';
 import snake from './sectors/snake.js';
 import whack from './sectors/whack.js';
+import popup from './sectors/popup.js';
+import spam from './sectors/spam.js';
+import recycle from './sectors/recycle.js';
+import task from './sectors/task.js';
+import download from './sectors/download.js';
 import flappy from './sectors/flappy.js';
 
-const SECTORS = { platformer, shooter, racer, puzzle, boss, breakout, snake, whack, flappy, boss2 };
+const SECTORS = { platformer, shooter, racer, puzzle, boss, breakout, snake, whack, popup, spam, recycle, task, download, flappy, boss2 };
 const CONFETTI = [COLORS.yellow, COLORS.teal, COLORS.red, COLORS.white, COLORS.blue];
 const HINT_AFTER_FAILS = 2;
+const HOWTO_DELAY = 0.3; // ignore the key press that opened the folder
 
 export function createGame(renderer) {
   const { g, postfx } = renderer;
@@ -247,7 +253,15 @@ export function createGame(renderer) {
       }
       case 'opening':
         openT += dt;
-        if (openT >= WINDOW.openTime) mode = 'play';
+        if (openT >= WINDOW.openTime) {
+          mode = HOWTO[sectorId] ? 'howto' : 'play';
+          timer = 0;
+        }
+        break;
+      case 'howto':
+        timer += dt;
+        if (input.pressed('back')) closeSector();
+        else if (timer > HOWTO_DELAY && (input.pressed('confirm') || input.pointer.clicked)) mode = 'play';
         break;
       case 'play':
         updatePlay(dt);
@@ -334,6 +348,10 @@ export function createGame(renderer) {
       case 'ko':
         drawSector();
         drawKo(g, timer, state.difficulty, (state.twist[sectorId] || 0) >= HINT_AFTER_FAILS && state.difficulty !== 'easy');
+        break;
+      case 'howto':
+        drawSector();
+        drawHowTo(g, sector.title, HOWTO[sectorId], timer);
         break;
       default: drawSector(); break;
     }

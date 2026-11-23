@@ -65,13 +65,13 @@ export const AUDIO = { master: 0.22, fadeIn: 1.2, bpm: 112, lookahead: 0.14 };
 
 // Chapters: chapter 2 unlocks after the chapter 1 boss and brings the integrity back to 0.
 export const CHAPTERS = [
-  { ids: ['platformer', 'shooter', 'racer', 'puzzle'], boss: 'boss' },
-  { ids: ['breakout', 'snake', 'whack', 'flappy'], boss: 'boss2' },
+  { ids: ['platformer', 'task', 'download', 'recycle'], boss: 'boss' },
+  { ids: ['breakout', 'snake', 'popup', 'spam'], boss: 'boss2' },
 ];
 
 export const SECTOR_LABELS = {
-  platformer: 'memory', shooter: 'firewall', racer: 'databus', puzzle: 'photos', boss: 'kernel',
-  breakout: 'cache', snake: 'network', whack: 'bugfix', flappy: 'wifi', boss2: 'cloud',
+  platformer: 'memory', shooter: 'firewall', racer: 'databus', puzzle: 'photos', recycle: 'trash', task: 'task', scroll: 'scroll', download: 'download', boss: 'kernel',
+  breakout: 'cache', snake: 'network', whack: 'bugfix', popup: 'popup', spam: 'spam', flappy: 'wifi', boss2: 'cloud',
 };
 
 // Difficulty. hearts: extra (or fewer) lives. speed: enemy/obstacle speed. time: time limits. extra: amount of stuff.
@@ -97,6 +97,29 @@ export const WHACK = {
   goal: 14, timeLimit: 36, upTime: 1.1, spawnEvery: 0.6, fileChance: 0.2, hp: 3,
 };
 
+export const POPUP = {
+  gravity: 700, jump: 270, bounce: 330, maxFall: 420, runSpeed: 80, scroll: 28, spacing: 36, goal: 10, hp: 3, invuln: 1.2,
+};
+
+export const SPAM = {
+  timeLimit: 34, goal: 12, hp: 3, popSpeed: 28, popLife: 6, spawnEvery: 1.0, cursorSpeed: 130,
+};
+
+export const RECYCLE = {
+  timeLimit: 34, goal: 12, hp: 3, fall: 55, binSpeed: 150, spawnEvery: 0.8, fileChance: 0.25,
+};
+
+export const TASK = { surviveTime: 26, hp: 3 };
+
+export const SCROLL = {
+  timeLimit: 30, gravity: 200, lift: 360, maxSpeed: 110, zoneSpeed: 26, fill: 0.22, drain: 0.03,
+};
+
+export const DOWNLOAD = {
+  timeLimit: 32, hp: 3, perPress: 0.06, penalty: 0.1, penaltyCooldown: 0.35, warnTime: 0.6,
+  greenMin: 2, greenMax: 3.5, redMin: 1.2, redMax: 2,
+};
+
 export const FLAPPY = {
   gravity: 620, flap: 190, scroll: 70, gap: 54, spacing: 118, goal: 10, hp: 3, invuln: 1.2, playerX: 72,
 };
@@ -114,4 +137,22 @@ export const COMEBACK = { hp: 1, shield: 2, time: 5 };
 export const GLITCH = {
   warn: 1.2, duration: 3.5, rushDuration: 4, rushScale: 1.35,
   firstMin: 3.5, firstMax: 6, gapMin: 3, gapMax: 5, maxEvents: 3, gentleEvents: 1, gentleDelay: 2,
+};
+
+// "How to play" popup shown before each sector. Max 3 lines of 24 characters.
+export const HOWTO = {
+  platformer: ['RUN RIGHT TO THE END', 'UP/SPACE: JUMP', 'AVOID PITS AND SPIKES'],
+  shooter: ['MOVE WITH ARROWS', 'SPACE: SHOOT VIRUSES', 'SHOTS BOUNCE OFF WALLS'],
+  racer: ['LEFT/RIGHT: STEER', 'STAY ON THE ROAD', 'DODGE THE OBSTACLES'],
+  task: ['UP/DOWN: PICK A BAR', 'SPACE: KILL IT', 'STOP BARS REACHING 100%'],
+  download: ['MASH SPACE TO DOWNLOAD', 'GREEN WIFI: GO', 'RED WIFI: STOP!'],
+  scroll: ['HOLD SPACE: LIFT', 'LET GO: FALL', 'STAY ON THE FILE'],
+  recycle: ['LEFT/RIGHT: MOVE THE BIN', 'CATCH THE RED JUNK', 'LET YELLOW FILES FALL'],
+  puzzle: ['MOVE WITH ARROWS', 'SPACE: TURN A TILE', 'FIX THE PICTURE'],
+  boss: ['EAT ALL THE DOTS', 'ARROWS: MOVE', 'AVOID THE GHOSTS'],
+  breakout: ['LEFT/RIGHT: MOVE PADDLE', 'SPACE: LAUNCH BALL', 'SMASH ALL THE BRICKS'],
+  snake: ['ARROWS: STEER', 'COLLECT THE PACKETS', 'DODGE THE VIRUSES'],
+  popup: ['LEFT/RIGHT: MOVE', 'UP/SPACE: JUMP', 'HOP ON 10 WINDOWS'],
+  spam: ['ARROWS: MOVE CURSOR', 'SPACE ON THE RED X', 'CLOSE 12 POPUPS'],
+  boss2: ['EAT ALL THE DOTS', 'ARROWS: MOVE', 'AVOID THE GHOSTS'],
 };

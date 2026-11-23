@@ -37,6 +37,12 @@ export const state = {
   get bossReady() { return this.integrity >= 1 && !this.done[this.bossId]; },
 };
 
+// Dev server only: open /?chapter=2 to skip ahead. Vite strips this from production builds.
+if (import.meta.env.DEV) {
+  const wanted = Number(new URLSearchParams(location.search).get('chapter'));
+  if (wanted >= 1 && wanted <= CHAPTERS.length) state.chapter = wanted;
+}
+
 export function resetRun() {
   state.chapter = 1;
   state.done = {};

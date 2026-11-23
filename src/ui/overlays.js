@@ -1,6 +1,6 @@
 // Full-screen and in-window overlays: K.O. screen, repair banner, bounce-back banner, intro line, ending card.
 import { COLORS, VIEW, AREA, DIFFICULTY, KO } from '../config.js';
-import { rect, text, bevel, outline, heart, hintRow } from '../utils/draw.js';
+import { rect, text, bevel, outline, hintRow } from '../utils/draw.js';
 import { check } from './icons.js';
 import { clamp, easeOutBack } from '../utils/math.js';
 
@@ -8,20 +8,17 @@ const DIFF_COLORS = { easy: COLORS.lime, normal: COLORS.yellow, hard: COLORS.red
 
 export const diffColor = (name) => DIFF_COLORS[name];
 
-// The K.O. screen. The caller draws the frozen sector first; this dims it and slams the title in.
+// The K.O. screen: a fake blue screen of death. The reboot bar fills, then the player can bounce back.
 export function drawKo(g, t, difficulty, hasHint) {
-  g.globalAlpha = 0.72;
-  rect(g, 0, 0, VIEW.width, VIEW.height, COLORS.ink);
-  g.globalAlpha = 0.25;
-  rect(g, 0, 0, VIEW.width, VIEW.height, COLORS.red);
-  g.globalAlpha = 1;
+  const flicker = t < 0.25 && Math.floor(t * 40) % 2 === 0;
+  rect(g, 0, 0, VIEW.width, VIEW.height, flicker ? COLORS.ink : COLORS.blue);
+  if (flicker) return;
   const slam = easeOutBack(clamp(t / 0.3, 0, 1));
-  const y = Math.round(-40 + slam * 76);
-  const jitter = t < 0.5 ? Math.round(Math.sin(t * 90) * 2) : 0;
-  text(g, 'K.O.', VIEW.width / 2 + jitter + 4, y + 4, COLORS.ink, 'center', 32);
-  text(g, 'K.O.', VIEW.width / 2 + jitter, y, Math.floor(t * 5) % 2 ? COLORS.yellow : COLORS.white, 'center', 32);
-  text(g, 'SYSTEM CRASHED', VIEW.width / 2, 78, COLORS.red, 'center');
-  for (let i = 0; i < 3; i++) heart(g, VIEW.width / 2 - 14 + i * 10, 92, COLORS.slate);
+  text(g, ':(', 40, Math.round(-30 + slam * 54), COLORS.white, 'left', 32);
+  text(g, 'SYSTEM CRASHED', 40, 66, COLORS.white);
+  text(g, 'STOP: BOUNCE_BACK_PENDING', 40, 80, COLORS.pale);
+  rect(g, 40, 94, 160, 6, COLORS.night);
+  rect(g, 41, 95, Math.round(158 * clamp(t / KO.inputDelay, 0, 1)), 4, COLORS.yellow);
   if (t < KO.inputDelay) return;
   hintRow(g, 104, 108, ['enter']);
   text(g, 'RETRY', 122, 110, COLORS.white);
@@ -54,6 +51,20 @@ export function drawBounce(g, timeLeft) {
 export function drawIntro(g, line) {
   rect(g, 0, 17, AREA.w, 12, COLORS.ink);
   text(g, line, AREA.w / 2, 19, COLORS.yellow, 'center');
+}
+
+// Small instruction popup shown before a sector starts. Waits for a key press.
+export function drawHowTo(g, title, lines, t) {
+  const w = 214;
+  const h = 26 + lines.length * 12 + 16;
+  const x = Math.round((AREA.w - w) / 2);
+  const y = Math.round((AREA.h - h) / 2) + 6;
+  bevel(g, x, y, w, h, COLORS.grey, true);
+  rect(g, x + 2, y + 2, w - 4, 11, COLORS.blue);
+  text(g, 'how to play', x + 6, y + 4, COLORS.white);
+  rect(g, x + 2, y + 13, w - 4, h - 15, COLORS.ink);
+  lines.forEach((line, i) => text(g, line, x + w / 2, y + 20 + i * 12, COLORS.white, 'center'));
+  if (Math.floor(t * 3) % 2 === 0) text(g, 'PRESS SPACE', x + w / 2, y + h - 12, COLORS.yellow, 'center');
 }
 
 export function drawEnding(g, state, time) {
